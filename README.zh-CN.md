@@ -199,6 +199,31 @@ bash scripts/update.sh
 
 它先 `git pull`（更新代码和模板），再跑 `python3 scripts/setup.py --sync`（把最新模板重新应用到你已有的助手上，应用前先备份当前配置）。`setup.py` 可重复运行，更新是原地进行，不会重复创建助手。
 
+## 也适用于其他 agent
+
+这套电话系统不是 Muse 专属的。它分三层，只有最上面一层是：
+
+1. **Telnyx**（助手 + 号码 + 电话网）——跟 agent 无关。任何能调 API 的 agent 都能驱动它。
+2. **Python 脚本**（`setup.py`、`call.py`、`review.py`）——纯 Python，没有 Muse 依赖。任何有电脑的 agent 都能跑。
+3. **`SKILL.md` 包装**——这是 Muse 专属的部分，但 `SKILL.md` 本来就是 Anthropic（Claude）定下的格式，所以能直接搬到 Claude 那边的 agent 上。
+
+不读 Muse skill 的 agent，用 `mcp_server/` 里的 **MCP server**——它把同样的四个工具通过 Model Context Protocol 暴露出来，而且零依赖（纯 Python 标准库）：
+
+```bash
+python3 mcp_server/server.py
+```
+
+| Agent | 怎么接 |
+|---|---|
+| **Claude**（Claude Code / Agent SDK） | 直接把仓库当 skill 用（`SKILL.md` 就是 Anthropic 自己的格式），或走 MCP server |
+| **Claude Duet** | MCP server（Duet 靠 MCP 接工具） |
+| **OpenAI Dots** | 把 MCP server 打包成插件（Dots 的插件可以包含 MCP server 和/或 `SKILL.md` 工作流） |
+| **Grokbot** | 用命令加 MCP server，或直接在它那台云电脑上跑脚本（它支持 MCP、插件和 skill） |
+| **Cursor** | 用命令加 MCP server |
+| **其他任何 MCP 客户端** | `python3 mcp_server/server.py`（stdio） |
+
+各 agent 的具体配置见 [`mcp_server/README.md`](mcp_server/README.md)。Telnyx 账号和号码是你自己的，换 agent 不用重新买号、不用重建助手。
+
 ## 费用（Telnyx，约数）
 
 | 项目 | 费用 |
@@ -229,7 +254,7 @@ Telnyx 账单上没有单独的 AI 收费项，AI 费用算在余额里。实际
 
 - [ ] **大脑随新模型升级。** Telnyx 一上更强的文本模型，模板就把默认大脑换过去——不用重装，跑一下 `update.sh` 就行。
 - [ ] **GPT-Live，等它可靠了再扶正。** 原生语音对语音更自然，但会话启动还不够稳。稳了之后，它会成为和分层架构并列的正式选项。
-- [ ] **MCP 服务**，把同一套脚本包成 MCP Server，让非 Muse 的客户端也能用。脚本本身就是纯 Python、不依赖 Muse，所以只是薄薄一层封装，不是重写。
+- [x] **MCP 服务**——已完成。`mcp_server/server.py` 把同一套脚本包成 MCP Server（纯 Python 标准库、零依赖），任何支持 MCP 的 agent（Claude、Grokbot、OpenAI Dots、Claude Duet、Cursor 等）都能用这套电话工具。见[也适用于其他 agent](#也适用于其他-agent)。
 - [ ] **接听回拨**——Telnyx 号码有人打回来时接听并处理（语音信箱，或转接给你）。
 - [ ] **更多语言**——翻译模板和任务简报。
 - [ ] **语音信箱检测**——对方进语音信箱时留一段简短留言，而不是干等。
@@ -245,6 +270,9 @@ Telnyx 账单上没有单独的 AI 收费项，AI 费用算在余额里。实际
 ├── README.md                 # 英文 README
 ├── README.zh-CN.md           # 本文件
 ├── LICENSE                   # MIT
+├── mcp_server/
+│   ├── server.py             # MCP server（任何支持 MCP 的 agent）
+│   └── README.md             # 各 agent 的 MCP 配置
 ├── scripts/
 │   ├── setup.py              # 一键安装 / 同步（可重复运行）
 │   ├── call.py               # 拨号 + 本次开场白 + 任务简报

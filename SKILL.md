@@ -130,6 +130,15 @@ simply wait quietly. The 40-second timeout is the reliable backstop.
   Telnyx, not in this repo — a `git pull` alone does not change them.
   Re-running `setup.py` is what syncs them.
 
+## Other agents (MCP)
+
+The same phone tools are available to any MCP-capable personal agent
+(Claude, Grok Bot, OpenAI Dots, Claude Duet, Cursor, …) through
+`mcp_server/server.py` — a dependency-free MCP server (pure Python
+standard library). See `mcp_server/README.md` for per-agent config.
+It shares the same state file and the same Telnyx assistant as this
+skill, so the two can be used interchangeably.
+
 ## Costs (Telnyx, approximate)
 
 - Phone number: about $1/month.

@@ -248,6 +248,41 @@ existing assistant, backing up its current config first). `setup.py` is
 idempotent, so re-running it is always safe — it updates in place and never
 creates a duplicate assistant.
 
+## Works with other agents
+
+The phone system is not Muse-specific. It has three layers, and only the
+top one is:
+
+1. **Telnyx** (assistant + number + PSTN) — agent-agnostic. Any agent
+   that can call an API can drive it.
+2. **Python scripts** (`setup.py`, `call.py`, `review.py`) — plain Python,
+   no Muse dependency. Any agent with a computer can run them.
+3. **The `SKILL.md` packaging** — Muse-specific, but `SKILL.md` is the
+   same convention Anthropic uses for Claude Skills, so it ports directly
+   to Claude-based agents.
+
+For agents that do not read Muse skills, use the **MCP server** in
+`mcp_server/` — it exposes the same four tools over the Model Context
+Protocol, with no dependencies (pure Python standard library):
+
+```bash
+python3 mcp_server/server.py
+```
+
+| Agent | How to connect |
+|---|---|
+| **Claude** (Claude Code / Agent SDK) | Use the repo as a skill — `SKILL.md` is Anthropic's own format — or the MCP server |
+| **Claude Duet** | MCP server (Duet connects to tools over MCP) |
+| **OpenAI Dots** | Package the MCP server as a plugin (Dots plugins can contain an MCP server and/or a `SKILL.md` workflow) |
+| **Grok Bot** | MCP server by command, or run the scripts on its cloud computer (it supports MCP, plugins, and skills) |
+| **Cursor** | MCP server by command |
+| **Any other MCP client** | `python3 mcp_server/server.py` over stdio |
+
+See [`mcp_server/README.md`](mcp_server/README.md) for per-agent
+configuration examples. The Telnyx account and number are yours and carry
+over — switching agents does not mean buying a new number or rebuilding
+the assistant.
+
 ## Costs (Telnyx, approximate)
 
 | Item | Cost |
@@ -306,9 +341,11 @@ set up.
 - [ ] **GPT-Live, when it is reliable.** The native speech-to-speech path
   is more natural, but its session startup is not yet dependable. When it
   is, it becomes a supported option alongside the layered default.
-- [ ] **MCP server** wrapping the same scripts, so non-Muse clients can
-  use the phone tools too. The scripts are already plain Python with no
-  Muse-only dependency, so this is a thin wrapper, not a rewrite.
+- [x] **MCP server** — done. `mcp_server/server.py` wraps the same
+  scripts as an MCP server (pure Python standard library, no
+  dependencies), so any MCP-capable agent (Claude, Grok Bot, OpenAI
+  Dots, Claude Duet, Cursor, …) can use the phone tools. See
+  [Works with other agents](#works-with-other-agents).
 - [ ] **Inbound handling** — answer return calls on the Telnyx number and
   route them (voicemail, or forward to the user).
 - [ ] **More languages** — translated template and task briefs.
@@ -328,6 +365,9 @@ assistant template, `setup.py --sync` is how existing users receive it.
 ├── README.md                 # this file
 ├── README.zh-CN.md           # Chinese README
 ├── LICENSE                   # MIT
+├── mcp_server/
+│   ├── server.py             # MCP server (any MCP-capable agent)
+│   └── README.md             # per-agent MCP configuration
 ├── scripts/
 │   ├── setup.py              # one-command install / sync (idempotent)
 │   ├── call.py               # dial + per-call greeting + task brief
