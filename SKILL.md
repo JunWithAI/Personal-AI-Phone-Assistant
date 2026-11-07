@@ -81,9 +81,10 @@ python3 scripts/call.py --to <DESTINATION_E164> \
 for the answer, checks that the assistant actually spoke, and redials once
 if the session was dead (no messages). It prints a JSON summary with the
 `call_session_id` and `conversation_id`. With `--language zh`, it also
-overrides the instructions and transcription for that call only, from
-`templates/assistant_zh.json` — one stored assistant serves both
-languages.
+overrides the instructions, transcription, and voice for that call only,
+from `templates/assistant_zh.json` — one stored assistant serves both
+languages. Chinese uses `deepgram/nova-3` (Flux does not support Chinese)
+and a Chinese Telnyx Ultra voice.
 
 ## Reviewing a call
 
@@ -159,9 +160,12 @@ skill, so the two can be used interchangeably.
 - English by default, Chinese supported per call. Pass `--language zh`
   to `call.py` (or `language: "zh"` to the MCP `make_phone_call` tool)
   and the assistant speaks and listens in Chinese for that call —
-  instructions and transcription are overridden per call from
-  `templates/assistant_zh.json`. Other languages need a translated
-  template added the same way.
+  instructions, transcription, and voice are overridden per call from
+  `templates/assistant_zh.json`. Chinese uses a Chinese Telnyx Ultra
+  voice (Mei) and `deepgram/nova-3` transcription, because
+  `deepgram/flux` does not support Chinese — Flux mis-transcribes
+  Chinese speech as English/Japanese gibberish. Other languages need a
+  translated template added the same way.
 - Outbound destinations default to US + CA. Other countries need
   allow-listing in the Telnyx outbound voice profile.
 - The assistant is only as good as its task brief. Complex negotiations

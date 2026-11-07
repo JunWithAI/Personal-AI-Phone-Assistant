@@ -11,12 +11,14 @@ scenario. The caller's name and phone come from the assistant's stored
 dynamic variables (set by ``setup.py``).
 
 Language: the stored assistant is English. Pass ``--language zh`` for a
-Chinese call — the script then overrides the assistant's ``instructions``
-and ``transcription`` for this call only (from
+Chinese call — the script then overrides the assistant's ``instructions``,
+``transcription``, and ``voice_settings`` for this call only (from
 ``templates/assistant_zh.json``), so the assistant speaks and listens in
-Chinese. Telnyx per-call overrides replace the stored objects, so one
-stored assistant serves both languages. ``--language en`` (default) uses
-the stored English configuration unchanged.
+Chinese. The voice override matters: the stored voice is English-only and
+garbles Chinese text; the zh template uses a Chinese Telnyx Ultra voice.
+Telnyx per-call overrides replace the stored objects, so one stored
+assistant serves both languages. ``--language en`` (default) uses the
+stored English configuration unchanged.
 
 Dead-call protection: after the call is answered, this script waits
 ``--wait`` seconds and checks whether the assistant has spoken. If the
@@ -90,14 +92,18 @@ def dial(to_number, greeting, task_brief, connection_id, from_number,
         "dynamic_variables": {"task_brief": task_brief},
     }
     if language == "zh":
-        # Per-call override: Chinese instructions + Chinese transcription.
-        # Telnyx replaces the stored objects, so one stored assistant
-        # serves both languages.
+        # Per-call override: Chinese instructions, Chinese transcription,
+        # and a Chinese voice. Telnyx replaces the stored objects, so one
+        # stored assistant serves both languages. The voice override is
+        # essential: the stored voice is English-only (Katie, en-US) and
+        # garbles Chinese text. The zh template uses a Chinese Ultra voice.
         zh = load_zh_template()
         if zh.get("instructions"):
             assistant["instructions"] = zh["instructions"]
         if zh.get("transcription"):
             assistant["transcription"] = zh["transcription"]
+        if zh.get("voice_settings"):
+            assistant["voice_settings"] = zh["voice_settings"]
     status, payload = telnyx_call("POST", "/v2/calls", {
         "connection_id": connection_id,
         "to": to_number,

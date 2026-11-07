@@ -305,10 +305,13 @@ Honest limits, so you know what you are getting:
   answered unless you set up forwarding separately.
 - **English by default, Chinese supported per call.** Pass `--language zh`
   to `call.py` (or `language: "zh"` to the MCP `make_phone_call` tool) and
-  the assistant speaks and listens in Chinese for that call — instructions
-  and transcription are overridden per call from
-  `templates/assistant_zh.json`. Other languages need a translated
-  template added the same way.
+  the assistant speaks and listens in Chinese for that call — instructions,
+  transcription, and voice are overridden per call from
+  `templates/assistant_zh.json`. Chinese uses a Chinese Telnyx Ultra voice
+  (Mei) and `deepgram/nova-3` transcription, because `deepgram/flux` does
+  not support Chinese — Flux mis-transcribes Chinese speech as
+  English/Japanese gibberish. Other languages need a translated template
+  added the same way.
 - **US/CA destinations by default.** Other countries need allow-listing in
   the Telnyx outbound voice profile (a manual Portal step).
 - **The idle follow-up is a prompt, not a guarantee.** The 10-second
