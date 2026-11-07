@@ -1,19 +1,19 @@
 <div align="center">
 
-# Muse AI 电话助手
+**[English Version →](README.md)**
+
+# 个人 AI 电话助手
 
 **让你的 AI 助手拥有一条真正的电话线——今天就能用，Telnyx 覆盖的地方都行。**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Telnyx](https://img.shields.io/badge/Telnyx-API-16a34a.svg)](https://www.telnyx.com/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/JunWithAI/Muse-AI-Phone-Assistant/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/JunWithAI/Personal-AI-Phone-Assistant/pulls)
 
 *一个开源 Muse Skill：一个通用语音助手替你打电话——问个问题、订个座位、确认一个细节。*
 
 </div>
-
-英文版 README：[README.md](README.md)
 
 ---
 
@@ -97,14 +97,14 @@ Muse 其实已经能替你打电话了——但只限美国，而且只对获得
 ### 安装 Skill（Muse）
 
 ```bash
-git clone https://github.com/JunWithAI/Muse-AI-Phone-Assistant.git \
-  ~/workspace/custom-skills/muse-ai-phone-assistant
+git clone https://github.com/JunWithAI/Personal-AI-Phone-Assistant.git \
+  ~/workspace/custom-skills/personal-ai-phone-assistant
 ```
 
 ### 配置（一行命令）
 
 ```bash
-cd ~/workspace/custom-skills/muse-ai-phone-assistant
+cd ~/workspace/custom-skills/personal-ai-phone-assistant
 python3 scripts/setup.py --name <你的名> [--phone <你的电话>]
 ```
 

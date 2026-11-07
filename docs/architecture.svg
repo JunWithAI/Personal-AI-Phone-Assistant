@@ -14,7 +14,7 @@
   <rect x="0" y="0" width="1280" height="760" fill="#ffffff"/>
 
   <!-- title -->
-  <text x="640" y="42" text-anchor="middle" font-size="28" font-weight="700" fill="#1e293b">Muse AI Phone Assistant — Architecture</text>
+  <text x="640" y="42" text-anchor="middle" font-size="28" font-weight="700" fill="#1e293b">Personal AI Phone Assistant — Architecture</text>
   <text x="640" y="70" text-anchor="middle" font-size="15" fill="#64748b">You give the order · Muse operates · Telnyx provides the number, the line, and the voice assistant</text>
 
   <!-- ===== top flow: 5 boxes ===== -->

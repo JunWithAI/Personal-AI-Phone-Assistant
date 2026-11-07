@@ -1,13 +1,15 @@
 <div align="center">
 
-# Muse AI Phone Assistant
+**[中文版 (Chinese) →](README.zh-CN.md)**
+
+# Personal AI Phone Assistant
 
 **Give your AI assistant a real phone line — today, anywhere Telnyx operates.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/)
 [![Telnyx](https://img.shields.io/badge/Telnyx-API-16a34a.svg)](https://www.telnyx.com/)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/JunWithAI/Muse-AI-Phone-Assistant/pulls)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/JunWithAI/Personal-AI-Phone-Assistant/pulls)
 
 *An open-source Muse skill: one general voice assistant that calls businesses
 on your behalf — ask a question, book a table, confirm a detail.*
@@ -125,14 +127,14 @@ them, and no script can do them for you:
 ### Install the skill (Muse)
 
 ```bash
-git clone https://github.com/JunWithAI/Muse-AI-Phone-Assistant.git \
-  ~/workspace/custom-skills/muse-ai-phone-assistant
+git clone https://github.com/JunWithAI/Personal-AI-Phone-Assistant.git \
+  ~/workspace/custom-skills/personal-ai-phone-assistant
 ```
 
 ### Set it up (one command)
 
 ```bash
-cd ~/workspace/custom-skills/muse-ai-phone-assistant
+cd ~/workspace/custom-skills/personal-ai-phone-assistant
 python3 scripts/setup.py --name <YOUR_FIRST_NAME> [--phone <YOUR_PHONE>]
 ```
 
