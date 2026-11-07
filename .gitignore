@@ -1,0 +1,22 @@
+# Secrets and local state — never commit these.
+.env
+*.env
+config.json
+.muse-ai-phone-state.json
+
+# Runtime state written by setup.py / call.py / review.py.
+.config/muse-ai-phone/
+
+# Call recordings and transcripts (may contain personal data).
+*.mp3
+*.wav
+recordings/
+transcripts/
+
+# Python caches.
+__pycache__/
+*.pyc
+
+# OS / editor noise.
+.DS_Store
+Thumbs.db
