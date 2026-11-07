@@ -10,6 +10,14 @@ Both are sent as per-call overrides, so one stored assistant serves every
 scenario. The caller's name and phone come from the assistant's stored
 dynamic variables (set by ``setup.py``).
 
+Language: the stored assistant is English. Pass ``--language zh`` for a
+Chinese call — the script then overrides the assistant's ``instructions``
+and ``transcription`` for this call only (from
+``templates/assistant_zh.json``), so the assistant speaks and listens in
+Chinese. Telnyx per-call overrides replace the stored objects, so one
+stored assistant serves both languages. ``--language en`` (default) uses
+the stored English configuration unchanged.
+
 Dead-call protection: after the call is answered, this script waits
 ``--wait`` seconds and checks whether the assistant has spoken. If the
 conversation is empty (a dead session — the assistant never started) and
@@ -17,7 +25,7 @@ the call is still live, it hangs up and redials, up to ``--attempts`` times.
 
 Usage:
   python3 call.py --to +15551234567 --greeting "..." --task-brief "..."
-                  [--wait 15] [--attempts 2] [--state PATH]
+                  [--language zh] [--wait 15] [--attempts 2] [--state PATH]
                   [--assistant-id ID] [--connection-id ID] [--from NUMBER]
 
   --to            Destination number in E.164 format (required).
@@ -26,6 +34,8 @@ Usage:
   --task-brief    What the assistant should do on this call (required).
                   Be specific: who it is calling, what to ask, what to
                   book or confirm, and what counts as done.
+  --language      Call language: ``en`` (default, stored config) or ``zh``
+                  (Chinese — overrides instructions + transcription).
   --wait          Seconds to wait after answer before checking the
                   assistant spoke (default 15).
   --attempts      Maximum dial attempts, including redials (default 2).
@@ -52,6 +62,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from telnyx_client import call as telnyx_call  # noqa: E402
 
 DEFAULT_STATE = Path.home() / ".config" / "muse-ai-phone" / "state.json"
+REPO_DIR = Path(__file__).resolve().parent.parent
+ZH_TEMPLATE_PATH = REPO_DIR / "templates" / "assistant_zh.json"
 
 
 def load_state(path):
@@ -62,16 +74,35 @@ def load_state(path):
         return {}
 
 
-def dial(to_number, greeting, task_brief, connection_id, from_number, assistant_id):
+def load_zh_template():
+    """Return the Chinese assistant template (instructions + transcription)."""
+    try:
+        return json.loads(ZH_TEMPLATE_PATH.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def dial(to_number, greeting, task_brief, connection_id, from_number,
+         assistant_id, language="en"):
+    assistant = {
+        "id": assistant_id,
+        "greeting": greeting,
+        "dynamic_variables": {"task_brief": task_brief},
+    }
+    if language == "zh":
+        # Per-call override: Chinese instructions + Chinese transcription.
+        # Telnyx replaces the stored objects, so one stored assistant
+        # serves both languages.
+        zh = load_zh_template()
+        if zh.get("instructions"):
+            assistant["instructions"] = zh["instructions"]
+        if zh.get("transcription"):
+            assistant["transcription"] = zh["transcription"]
     status, payload = telnyx_call("POST", "/v2/calls", {
         "connection_id": connection_id,
         "to": to_number,
         "from": from_number,
-        "assistant": {
-            "id": assistant_id,
-            "greeting": greeting,
-            "dynamic_variables": {"task_brief": task_brief},
-        },
+        "assistant": assistant,
     })
     if status < 200 or status >= 300:
         return None, {"status": status, "error": payload}
@@ -136,6 +167,8 @@ def main(argv=None):
     parser.add_argument("--to", required=True, help="destination number (E.164)")
     parser.add_argument("--greeting", required=True, help="exact opening line")
     parser.add_argument("--task-brief", required=True, help="what to do on this call")
+    parser.add_argument("--language", choices=["en", "zh"], default="en",
+                        help="call language: en (default) or zh (Chinese)")
     parser.add_argument("--wait", type=int, default=15,
                         help="seconds after answer before checking speech")
     parser.add_argument("--attempts", type=int, default=2,
@@ -162,7 +195,8 @@ def main(argv=None):
     attempts = []
     for attempt in range(1, args.attempts + 1):
         info, err = dial(args.to, args.greeting, args.task_brief,
-                         connection_id, from_number, assistant_id)
+                         connection_id, from_number, assistant_id,
+                         language=args.language)
         if err:
             attempts.append({"attempt": attempt, "dial_error": err})
             break
@@ -207,7 +241,8 @@ def main(argv=None):
             record["redial"] = "call already ended, redialing"
             time.sleep(2)
     print(json.dumps(
-        {"to": args.to, "assistant": assistant_id, "attempts": attempts},
+        {"to": args.to, "assistant": assistant_id, "language": args.language,
+         "attempts": attempts},
         indent=2, ensure_ascii=False,
     ))
     return 0

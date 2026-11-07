@@ -303,8 +303,12 @@ Honest limits, so you know what you are getting:
 
 - **Outbound only.** The number is a caller ID. Return calls are not
   answered unless you set up forwarding separately.
-- **English by default.** Instructions, greeting, and transcription are
-  English. Other languages need the template and task briefs translated.
+- **English by default, Chinese supported per call.** Pass `--language zh`
+  to `call.py` (or `language: "zh"` to the MCP `make_phone_call` tool) and
+  the assistant speaks and listens in Chinese for that call — instructions
+  and transcription are overridden per call from
+  `templates/assistant_zh.json`. Other languages need a translated
+  template added the same way.
 - **US/CA destinations by default.** Other countries need allow-listing in
   the Telnyx outbound voice profile (a manual Portal step).
 - **The idle follow-up is a prompt, not a guarantee.** The 10-second
@@ -350,6 +354,9 @@ set up.
   [Works with other agents](#works-with-other-agents).
 - [ ] **Inbound handling** — answer return calls on the Telnyx number and
   route them (voicemail, or forward to the user).
+- [x] **Chinese calls** — `--language zh` overrides instructions and
+  transcription per call (tested: 0.8s greeting, assistant stays in
+  Chinese).
 - [ ] **More languages** — translated template and task briefs.
 - [ ] **Voicemail detection** — leave a short message when the call goes
   to voicemail instead of waiting.

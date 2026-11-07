@@ -141,6 +141,17 @@ TOOLS = [
                         "personal details."
                     ),
                 },
+                "language": {
+                    "type": "string",
+                    "enum": ["en", "zh"],
+                    "description": (
+                        "Call language. 'en' (default) uses the stored English "
+                        "assistant. 'zh' makes the call in Chinese: the "
+                        "assistant speaks and listens in Chinese (instructions "
+                        "and transcription overridden per call). The greeting "
+                        "and task_brief should be written in the same language."
+                    ),
+                },
             },
             "required": ["to", "greeting", "task_brief"],
         },
@@ -225,6 +236,10 @@ def tool_make_phone_call(arguments):
         "--greeting", str(arguments["greeting"]),
         "--task-brief", str(arguments["task_brief"]),
     ]
+    language = str(arguments.get("language") or "en").lower()
+    if language not in ("en", "zh"):
+        return True, "error: language must be 'en' or 'zh'."
+    args += ["--language", language]
     ok, out, err = run_script("call.py", args)
     if not ok:
         detail = err or out or "call.py exited without output"

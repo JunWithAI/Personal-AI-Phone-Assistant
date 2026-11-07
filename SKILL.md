@@ -74,12 +74,16 @@ the assistant should ask or book. Never dial without that confirmation.
 python3 scripts/call.py --to <DESTINATION_E164> \
   --greeting "<OPENING LINE>" \
   --task-brief "<WHAT TO DO ON THIS CALL>"
+# Chinese call: add --language zh (greeting and task brief in Chinese).
 ```
 
 `call.py` passes the greeting and task brief as per-call overrides, waits
 for the answer, checks that the assistant actually spoke, and redials once
 if the session was dead (no messages). It prints a JSON summary with the
-`call_session_id` and `conversation_id`.
+`call_session_id` and `conversation_id`. With `--language zh`, it also
+overrides the instructions and transcription for that call only, from
+`templates/assistant_zh.json` — one stored assistant serves both
+languages.
 
 ## Reviewing a call
 
@@ -152,8 +156,12 @@ skill, so the two can be used interchangeably.
 
 - Outbound calls only. The number is a caller ID; return calls are not
   answered unless you set up forwarding separately.
-- English by default (instructions, greeting, transcription). Other
-  languages need the template and task briefs translated.
+- English by default, Chinese supported per call. Pass `--language zh`
+  to `call.py` (or `language: "zh"` to the MCP `make_phone_call` tool)
+  and the assistant speaks and listens in Chinese for that call —
+  instructions and transcription are overridden per call from
+  `templates/assistant_zh.json`. Other languages need a translated
+  template added the same way.
 - Outbound destinations default to US + CA. Other countries need
   allow-listing in the Telnyx outbound voice profile.
 - The assistant is only as good as its task brief. Complex negotiations
