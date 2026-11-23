@@ -94,7 +94,8 @@ python3 scripts/review.py --conversation <CONVERSATION_ID> [--download out.mp3]
 ```
 
 This prints the transcript in order, the timing (answer time, greeting
-latency, duration), whether the hangup tool fired, and the recording id.
+latency, duration), whether the hangup tool fired, which DTMF digits were
+pressed (if any), and the recording id.
 `--download` saves the dual-channel recording.
 
 ## How the assistant behaves (shared rules)
@@ -107,6 +108,10 @@ These live in `templates/assistant.json` and apply to every call:
 - Shares the user's phone number only when the other party explicitly asks
   for a callback or confirmation number. Never volunteers it.
 - Asks one question at a time and waits for the answer.
+- When it hears an automated phone menu, it presses the digit with the
+  Send DTMF tool — it never just says "press 1" out loud, because speaking
+  the words does not select the menu option. It listens to the full menu
+  first, sends one digit at a time, and waits for the response.
 - If asked whether it is a robot or AI, answers honestly: yes.
 - If the other party refuses to speak to an AI, apologises, asks for the
   best time for the user to call back, and ends the call.

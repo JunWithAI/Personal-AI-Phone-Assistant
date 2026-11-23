@@ -3,7 +3,7 @@
 ## The idea in one paragraph
 
 One general-purpose voice assistant does all the talking. It holds only the
-shared rules (identity, privacy, turn-taking, hangup). Every call passes
+shared rules (identity, privacy, turn-taking, hangup, DTMF). Every call passes
 two things that make it specific — the exact opening line and a short task
 brief — as per-call overrides. So there is one assistant to maintain, and
 every scenario is just a different brief. Muse is the operator: it writes
@@ -32,6 +32,7 @@ Telnyx AI Assistant — "Muse General Phone Assistant"            │
   │  Voice:  Telnyx Ultra (text-to-speech, speed 0.9)           │
   │  Rules:  shared instructions + {{task_brief}}                │
   │  Tools:  hangup (ends the call promptly)                     │
+  │          send_dtmf (presses phone-menu digits)              │
   ▼                                                              │
 PSTN ──► the person / business being called ──────────────────────┘
   │
@@ -110,6 +111,31 @@ built in:
   dead: it hangs up and redials once.
 - **The greeting is static.** A model-generated greeting puts the first
   token on the critical path; a fixed string does not.
+
+## Phone menus need DTMF, not words
+
+Many customer-service lines answer with an automated menu ("say yes or
+press 1"). The assistant originally had only the `hangup` tool, so when
+it met such a menu it could only *say* "press 1" out loud — and the menu
+just repeated itself, because speaking the words does not select the
+option. Two Fido customer-service calls on 2026-11-23 died exactly this
+way (connected, assistant speaking, menu looping, no human reached).
+
+The fix is the built-in `send_dtmf` tool (Telnyx, released 2025-04-23),
+added to the assistant alongside `hangup` in `templates/assistant.json`
+(and `templates/assistant_zh.json`). The instructions now tell the
+assistant: listen to the full menu first, then send one digit at a time
+with the tool and wait for the response; if no option fits, send `0` for
+an operator. The next Fido call used it in practice — the assistant sent
+digit `2` when the menu offered "say no or press two", the tool returned
+`ok`, and the menu moved on. `review.py` reports which digits were
+pressed on a call.
+
+Two limits worth knowing: the tool sends digits, it does not *hear* a
+menu for you — the assistant still has to listen and decide which digit
+to send. And some lines (Fido's included) will not connect a live agent
+at all without account verification; the tool gets you through the menu,
+not past the verification step.
 
 ## The silence settings (and an honest caveat)
 

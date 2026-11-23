@@ -19,6 +19,29 @@ party hangs up.
 - Do not keep redialling in a tight loop. If two attempts die, stop and
   investigate rather than burning minutes.
 
+## The assistant can't get past a phone menu (IVR keeps repeating)
+
+Symptoms: the call connects, the assistant speaks, but the automated
+menu keeps repeating itself ("say yes or press one, say no or press
+two") and no human is ever reached.
+
+- Saying "press 1" out loud does **not** select the option. The menu
+  only responds to touch tones. The assistant must use the **Send DTMF
+  tool** (`type: send_dtmf`) to send the digit.
+- Check the assistant has a tool of `type: send_dtmf` as well as
+  `type: hangup`: `python3 scripts/telnyx_client.py get
+  /v2/ai/assistants/<id>`. If it is missing, run
+  `python3 scripts/setup.py --sync` — it re-applies both tools from the
+  template. (The tool was added in November 2026 after Fido's menu looped
+  twice on spoken "press 1"; the next call pressed `2` via the tool and
+  the menu moved on.)
+- The instructions must also tell it to listen to the full menu first
+  and send one digit at a time. The template does this; if you edited
+  the instructions, keep that rule.
+- If the menu asks for a digit the assistant does not know (an account
+  number, a PIN), it cannot guess — give the number in the task brief,
+  or expect the line to offer a callback instead of a live agent.
+
 ## The greeting is slow (several seconds of silence after pickup)
 
 - Make sure the greeting is a **static string**, not a model-generated

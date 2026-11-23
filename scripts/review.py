@@ -19,6 +19,8 @@ What it reports:
   - The full transcript (user / assistant / tool), oldest first.
   - Whether the hangup tool fired (tool result "ok" after the last
     goodbye) — the sign the call ended promptly instead of lingering.
+  - Which DTMF digits the assistant pressed (if any) — the sign it got
+    through a phone menu instead of just saying "press 1" out loud.
   - The recording id, if one exists.
 
 The recording is dual-channel (one side per channel). To check which side
@@ -176,6 +178,22 @@ def main(argv=None):
                   and "hangup" in (m.get("text") or "").lower()]
     print(f"Hangup tool fired: {'yes' if hangup_ok else 'no'}"
           + ("" if hangup_ok else " (call may have lingered until timeout)"))
+
+    # Which DTMF digits were pressed? Assistant messages carry tool_calls
+    # with function name "send_dtmf" and arguments {"digits": "2"}.
+    dtmf_digits = []
+    for m in messages:
+        for tc in (m.get("tool_calls") or []):
+            fn = (tc.get("function") or {})
+            if fn.get("name") == "send_dtmf":
+                try:
+                    digits = json.loads(fn.get("arguments") or "{}").get("digits")
+                except ValueError:
+                    digits = None
+                if digits:
+                    dtmf_digits.append(str(digits))
+    if dtmf_digits:
+        print(f"DTMF digits pressed: {', '.join(dtmf_digits)}")
 
     print(f"\nTranscript ({len(messages)} messages):")
     for m in messages:

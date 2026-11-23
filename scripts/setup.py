@@ -282,10 +282,12 @@ def main(argv=None):
             fail(f"assistant {assistant_id} was created but cannot be read back (HTTP {status}).")
         body = unwrap_assistant(payload) or {}
         tel = body.get("telephony_settings", {})
+        tools = [t.get("type") for t in body.get("tools", []) if t.get("type")]
         print(f"  Verified: model {body.get('model')}, "
               f"idle_reply {tel.get('user_idle_reply_secs')}s, "
               f"idle_timeout {tel.get('user_idle_timeout_secs')}s, "
-              f"greeting_delay {tel.get('greeting_delay_ms')}ms.")
+              f"greeting_delay {tel.get('greeting_delay_ms')}ms, "
+              f"tools {', '.join(tools) or 'none'}.")
         state.update({
             "assistant_id": assistant_id,
             "connection_id": connection_id,

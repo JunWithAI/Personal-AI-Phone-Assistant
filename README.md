@@ -47,6 +47,7 @@ operates, and the assistant does the talking.
 | **Greeting in ~1 second** | The opening line is a static string, so the audio is ready the moment the call is answered. No waiting for the model to generate a first token. |
 | **Dead-call protection** | The dialer checks that the assistant actually spoke, and redials once if the session never started. A dead session is detected, not silently billed. |
 | **Hangs up promptly** | A hangup tool ends the call about a second after the final goodbye. No lingering open line. |
+| **Navigates phone menus** | A Send DTMF tool presses menu digits ("press 1") as real touch tones. Saying the words out loud does not select the option — the tool does. |
 | **Privacy by default** | Only your first name is used. No personal details are volunteered, and your phone number is shared only when the other party explicitly asks for it. |
 | **One-command setup & updates** | `setup.py` installs the assistant and is idempotent. `update.sh` runs `git pull` + sync, so installed users get improvements without reinstalling. |
 | **No OpenAI key needed** | The default brain runs through Telnyx's own inference. One credential (Telnyx) is all a new user needs. |
